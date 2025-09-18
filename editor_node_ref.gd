@@ -7,7 +7,7 @@ const _GET_REF_SCRIPTS = {
 	}
 }
 
-const _NODE_NAME = "EditorNodeRefs"
+const _NODE_NAME = "EditorNodeRef"
 
 static func get_instance():
 	var root = Engine.get_main_loop().root
@@ -21,50 +21,65 @@ static func get_instance():
 	return _instance
 
 
-enum Nodes {
-	FILESYSTEM_POPUP,
-	FILESYSTEM_CREATE_POPUP,
-	SCRIPT_EDITOR_POPUP,
-	SCRIPT_EDITOR_CODE_POPUP,
-	SCENE_TABS_POPUP,
-	SCENE_TREE_POPUP,
-}
+static func register(key, object) -> void:
+	var instance = get_instance()
+	instance._register(key, object)
 
-var current_version_script:_NodeRefScripts.NodeRefBase
-
-var _registry:Dictionary = {}
-
-func _ready() -> void:
-	var version = Engine.get_version_info()
-	var major = version.major
-	var minor = version.minor
-	
-	var major_dict = _GET_REF_SCRIPTS.get(major)
-	var minor_script = major_dict.get(minor)
-	if minor_script == null:
-		print("Error getting version %s.%s EditorNodeRefs script, reverting to 4.4" % [major, minor])
-		current_version_script = major_dict.get(4)
-	else:
-		current_version_script = major_dict.get(minor)
-	
-	_popupulate_references()
-	EditorInterface.get_script_editor().editor_script_changed.connect(_get_script_editor_references)
-
-
-func register(key, object):
+func _register(key, object):
 	if _registry.has(key):
 		printerr("EditorNodeRefs has key already: %s" % key)
 		return
 	_registry[key] = object
 
-func unregister(key, quiet:=false):
+static func unregister(key) -> void:
+	var instance = get_instance()
+	instance._unregister(key)
+
+func _unregister(key, quiet:=false):
 	if _registry.has(key):
 		_registry.erase(key)
 	else:
 		if not quiet:
 			printerr("EditorNodeRefs doens't have key: %s" % key)
 
-func get_registered(key):
+static func register_dynamic(key, method:Callable, _signal:Signal, callback=null, callback_pass_args:=false):
+	var instance = get_instance()
+	instance._register_dynamic(key, method, _signal, callback, callback_pass_args)
+
+func _register_dynamic(key, method:Callable, _signal:Signal, callback=null, callback_pass_args:=false):
+	if _dynamic_data.has(key):
+		printerr("Already registered key: %s" % key)
+		return
+	
+	var update_var = func():
+		_registry[key] = method.call()
+	
+	var signal_handler = SignalHandler.create_signal_adapter(update_var, callback, callback_pass_args)
+	_signal.connect(signal_handler)
+	
+	_dynamic_data[key] = {"signal":_signal, "handler": signal_handler}
+
+static func unregister_dynamic(key):
+	var instance = get_instance()
+	instance._unregister_dynamic(key)
+
+func _unregister_dynamic(key):
+	if _dynamic_data.has(key):
+		var data = _dynamic_data.get(key)
+		var _signal = data.get("signal")
+		var handler = data.get("handler")
+		_signal.disconnect(handler)
+		_dynamic_data.erase(key)
+		_unregister(key)
+	else:
+		printerr("EditorNodeRef does not have dynamic key: %s" % key)
+
+
+static func get_registered(key) -> Variant:
+	var instance = get_instance()
+	return instance._get_registered(key)
+
+func _get_registered(key):
 	if _registry.has(key):
 		return _registry.get(key)
 	else:
@@ -72,25 +87,109 @@ func get_registered(key):
 		return null
 
 
-
-func _popupulate_references():
-	_get_script_editor_references(null)
+enum Nodes {
+	FILESYSTEM_POPUP,
+	FILESYSTEM_CREATE_POPUP,
+	FILESYSTEM_TREE,
 	
-	register(Nodes.FILESYSTEM_POPUP, current_version_script.get_file_system_popup())
-	register(Nodes.FILESYSTEM_CREATE_POPUP, current_version_script.get_file_system_create_popup())
-	register(Nodes.SCENE_TABS_POPUP, current_version_script.get_scene_tabs_popup())
-	register(Nodes.SCENE_TREE_POPUP, current_version_script.get_scene_tree_popup())
+	SCRIPT_EDITOR_POPUP,
+	SCRIPT_EDITOR_CODE_POPUP,
+	SCRIPT_EDITOR_SYNTAX_POPUP,
+	SCRIPT_EDITOR_MENU_BAR,
 	
-
-
-func _get_script_editor_references(new_script):
-	unregister(Nodes.SCRIPT_EDITOR_POPUP, true)
-	unregister(Nodes.SCRIPT_EDITOR_CODE_POPUP, true)
+	SCENE_TABS_POPUP,
+	SCENE_TREE_POPUP,
+	SCENE_TREE_DOCK,
 	
-	register(Nodes.SCRIPT_EDITOR_POPUP, null)
-	register(Nodes.SCRIPT_EDITOR_CODE_POPUP, null)
+	TITLE_BAR,
+	TITLE_BUTTONS,
+	
+	BOTTOM_PANEL,
+	BOTTOM_PANEL_BUTTONS,
+	
+	EDITOR_LOG_FILTER,
+	
+	DOCKS,
+	
+}
+
+var _registry:Dictionary = {}
+var _dynamic_data:Dictionary = {}
+
+signal script_editor_updated
+
+var _get_node #:_NodeRefScripts.NodeRefBase
+
+var populated := false
+
+func _ready() -> void:
+	var version = Engine.get_version_info()
+	var major = version.major
+	var minor = version.minor
+	
+	var script
+	var major_dict = _GET_REF_SCRIPTS.get(major)
+	var minor_script = major_dict.get(minor)
+	if minor_script == null:
+		print("Error getting version %s.%s EditorNodeRefs script, reverting to 4.4" % [major, minor])
+		script = major_dict.get(4)
+	else:
+		script = major_dict.get(minor)
+	
+	_get_node = script.new()
+	
+	_popupulate_references.call_deferred()
 
 
+func _popupulate_references() -> void:
+	var root = Engine.get_main_loop().root
+	while not root.is_node_ready():
+		await get_tree().process_frame
+	#await get_tree().process_frame
+	
+	var types = ["TabContainer", "SceneTreeDock", "EditorBottomPanel", ]
+	_get_node.get_all_nodes_of_types(types)
+	
+	## Register
+	_register(Nodes.FILESYSTEM_POPUP, _get_node.get_file_system_popup())
+	_register(Nodes.FILESYSTEM_TREE, _get_node.get_file_system_tree())
+	
+	_register(Nodes.SCENE_TABS_POPUP, _get_node.get_scene_tabs_popup())
+	_register(Nodes.SCENE_TREE_POPUP, _get_node.get_scene_tree_popup())
+	_register(Nodes.SCENE_TREE_DOCK, _get_node.get_scene_tree_dock())
+	
+	_register(Nodes.TITLE_BAR, _get_node.get_title_bar())
+	_register(Nodes.TITLE_BUTTONS, _get_node.get_title_buttons())
+	
+	_register(Nodes.BOTTOM_PANEL, _get_node.get_bottom_panel())
+	_register(Nodes.BOTTOM_PANEL_BUTTONS, _get_node.get_bottom_panel_buttons())
+	
+	_register(Nodes.EDITOR_LOG_FILTER, _get_node.get_editor_log_filter_line_edit())
+	
+	_register(Nodes.DOCKS, _get_node.get_docks())
+	
+	
+	##
+	_popuplate_dynamic_references()
+	
+	populated = true
+
+func _popuplate_dynamic_references():
+	var fs_popup = EditorNodeRef.get_registered(EditorNodeRef.Nodes.FILESYSTEM_POPUP)
+	_register_dynamic(Nodes.FILESYSTEM_CREATE_POPUP, _get_node.get_file_system_create_popup, fs_popup.about_to_popup)
+	
+	var editor_script_changed = EditorInterface.get_script_editor().editor_script_changed
+	
+	_register_dynamic(Nodes.SCRIPT_EDITOR_POPUP, _get_node.get_script_editor_popup, editor_script_changed, _on_script_editor_references_updated)
+	_register_dynamic(Nodes.SCRIPT_EDITOR_CODE_POPUP, _get_node.get_script_editor_code_popup, editor_script_changed)
+	_register_dynamic(Nodes.SCRIPT_EDITOR_SYNTAX_POPUP, _get_node.get_script_editor_syntax_popup, editor_script_changed)
+	_register_dynamic(Nodes.SCRIPT_EDITOR_MENU_BAR, _get_node.get_script_editor_menu_bar, editor_script_changed)
+
+
+
+
+func _on_script_editor_references_updated():
+	script_editor_updated.emit()
 
 
 
