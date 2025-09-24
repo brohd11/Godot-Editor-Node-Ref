@@ -1,25 +1,36 @@
-class_name EditorNodeRef
-extends Node
+class_name EditorNodeRef #! singleton-module
+extends Singleton.Base
+
+#static func _static_init() -> void:
+	#get_instance()
+
 
 const _GET_REF_SCRIPTS = {
-	4:{
-		4:_NodeRefScripts.NodeRef_44
+	4: {
+		4: _NodeRefScripts.NodeRef_44,
+		5: _NodeRefScripts.NodeRef_45
 	}
 }
 
 const _NODE_NAME = "EditorNodeRef"
+const SCRIPT = preload("res://addons/addon_lib/editor_node_ref/editor_node_ref.gd")
+
+static func get_singleton_name():
+	return "EditorNodeRef"
 
 static func get_instance():
-	var root = Engine.get_main_loop().root
-	var _instance = root.get_node_or_null(_NODE_NAME)
-	
-	if not is_instance_valid(_instance):
-		_instance = new()
-		_instance.name = _NODE_NAME
-		root.add_child(_instance)
-	
-	return _instance
+	return _get_instance(SCRIPT)
 
+static func call_on_ready(callable:Callable):
+	_call_on_ready(SCRIPT, callable)
+	#var instance = get_instance()
+	#while not instance.populated:
+		#await instance.get_tree().process_frame
+	#
+	#callable.call()
+
+func _get_ready_bool():
+	return populated
 
 static func register(key, object) -> void:
 	var instance = get_instance()
@@ -97,6 +108,7 @@ enum Nodes {
 	SCRIPT_EDITOR_SYNTAX_POPUP,
 	SCRIPT_EDITOR_MENU_BAR,
 	
+	SCENE_TABS,
 	SCENE_TABS_POPUP,
 	SCENE_TREE_POPUP,
 	SCENE_TREE_DOCK,
@@ -107,6 +119,7 @@ enum Nodes {
 	BOTTOM_PANEL,
 	BOTTOM_PANEL_BUTTONS,
 	
+	EDITOR_LOG,
 	EDITOR_LOG_FILTER,
 	
 	DOCKS,
@@ -147,13 +160,14 @@ func _popupulate_references() -> void:
 		await get_tree().process_frame
 	#await get_tree().process_frame
 	
-	var types = ["TabContainer", "SceneTreeDock", "EditorBottomPanel", ]
+	var types = ["TabContainer", "SceneTreeDock", "EditorSceneTabs", "EditorBottomPanel"]
 	_get_node.get_all_nodes_of_types(types)
 	
 	## Register
 	_register(Nodes.FILESYSTEM_POPUP, _get_node.get_file_system_popup())
 	_register(Nodes.FILESYSTEM_TREE, _get_node.get_file_system_tree())
 	
+	_register(Nodes.SCENE_TABS, _get_node.get_scene_tabs())
 	_register(Nodes.SCENE_TABS_POPUP, _get_node.get_scene_tabs_popup())
 	_register(Nodes.SCENE_TREE_POPUP, _get_node.get_scene_tree_popup())
 	_register(Nodes.SCENE_TREE_DOCK, _get_node.get_scene_tree_dock())
@@ -164,6 +178,7 @@ func _popupulate_references() -> void:
 	_register(Nodes.BOTTOM_PANEL, _get_node.get_bottom_panel())
 	_register(Nodes.BOTTOM_PANEL_BUTTONS, _get_node.get_bottom_panel_buttons())
 	
+	_register(Nodes.EDITOR_LOG, _get_node.get_editor_log())
 	_register(Nodes.EDITOR_LOG_FILTER, _get_node.get_editor_log_filter_line_edit())
 	
 	_register(Nodes.DOCKS, _get_node.get_docks())
@@ -191,9 +206,13 @@ func _popuplate_dynamic_references():
 func _on_script_editor_references_updated():
 	script_editor_updated.emit()
 
-
+static func check_nodes():
+	var ins = get_instance()
+	for key in ins._registry.keys():
+		print(get_registered(key))
 
 
 class _NodeRefScripts:
 	const NodeRefBase = preload("res://addons/addon_lib/editor_node_ref/editor_node_ref_versions/get_ed_node_ref_base.gd")
 	const NodeRef_44 = preload("res://addons/addon_lib/editor_node_ref/editor_node_ref_versions/get_ed_node_ref_4_4.gd")
+	const NodeRef_45 = preload("res://addons/addon_lib/editor_node_ref/editor_node_ref_versions/get_ed_node_ref_4_5.gd")

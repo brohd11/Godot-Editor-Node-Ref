@@ -30,6 +30,9 @@ func get_script_editor_code_popup(): # Dynamic
 	var current = EditorInterface.get_script_editor().get_current_editor()
 	if current == null:
 		return null
+	for c in current.get_children():
+		if c is PopupMenu:
+			return c
 	return current.get_child(1)
 ##
 func get_script_editor_popup(): # Dynamic
@@ -70,15 +73,21 @@ func get_script_editor_syntax_popup(): # Dynamic
 
 ##
 func get_file_system_popup():
-	return EditorInterface.get_file_system_dock().get_child(2)
+	var fs_popup = EditorInterface.get_file_system_dock().get_child(2)
+	node_types_dict["FileSystemPopup"] = fs_popup
+	return fs_popup
+# private
+func _get_file_system_popup():
+	return node_types_dict.get("FileSystemPopup")
 ##
 func get_file_system_create_popup():
-	var fs_popup = EditorNodeRef.get_registered(EditorNodeRef.Nodes.FILESYSTEM_POPUP)
-	var popup = fs_popup.get_child(0)
-	return popup
+	var fs_popup = _get_file_system_popup()
+	if fs_popup.get_child_count() > 0:
+		var popup = fs_popup.get_child(0)
+		return popup
 #private func
 func _populate_filesystem_popup():
-	var fs_popup = EditorNodeRef.get_registered(EditorNodeRef.Nodes.FILESYSTEM_POPUP)
+	var fs_popup = _get_file_system_popup()
 	var tree = get_file_system_tree() as Tree
 	tree.item_mouse_selected.emit(Vector2.ZERO, 2)
 	fs_popup.hide()
@@ -100,11 +109,7 @@ func get_scene_tree_popup():
 	return node_types_dict.get("SceneTreeDock")[0].get_child(15)
 ##
 func get_scene_tabs():
-	var main_screen = EditorInterface.get_editor_main_screen()
-	var main_screen_parent = main_screen.get_parent().get_parent()
-	for c in main_screen_parent.get_children():
-		if c.get_class() == "EditorSceneTabs":
-			return c
+	return node_types_dict.get("EditorSceneTabs")[0]
 ##
 func get_scene_tree_dock():
 	return node_types_dict.get("SceneTreeDock")[0]
@@ -143,11 +148,11 @@ func get_title_buttons():
 
 ##
 func get_bottom_panel() -> Control:
-	return node_types_dict.get("EditorBottomPanel")[0]
+	return node_types_dict.get("EditorBottomPanel")[0].get_child(0)
 ##
 func get_bottom_panel_buttons():
-	var bp_v = _get_bottom_panel_vbox()
-	var bp_children = bp_v.get_children()
+	var bp = get_bottom_panel()
+	var bp_children = bp.get_children()
 	bp_children.reverse()
 	var hbox = null
 	for control in bp_children:
@@ -160,22 +165,24 @@ func get_bottom_panel_buttons():
 			break
 	var buttons_hbox = hbox.get_child(1).get_child(0, true)
 	return buttons_hbox
-# private
-func _get_bottom_panel_vbox():
-	return get_bottom_panel().get_child(0)
-# private func
+##
 func _bottom_panel_get_panel(_class_name):
-	var bottom_panel_vbox = _get_bottom_panel_vbox()
-	for p in bottom_panel_vbox.get_children():
+	var bottom_panel = get_bottom_panel()
+	for p in bottom_panel.get_children():
 		if p.get_class() == _class_name:
 			return p
 	push_error("Could not find %s" % _class_name)
+
+##
+func get_editor_log():
+	return _bottom_panel_get_panel("EditorLog")
 ##
 func get_editor_log_filter_line_edit():
-	var editor_log = _bottom_panel_get_panel("EditorLog")
+	var editor_log = get_editor_log()
 	var vbox = editor_log.get_child(1)
-	var line_edit = vbox.get_child(1)
-	return line_edit
+	for n in vbox.get_children():
+		if n is LineEdit:
+			return n
 
 
 
