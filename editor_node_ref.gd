@@ -18,18 +18,13 @@ const SCRIPT = preload("res://addons/addon_lib/editor_node_ref/editor_node_ref.g
 static func get_singleton_name():
 	return "EditorNodeRef"
 
-static func get_instance():
+static func get_instance() -> EditorNodeRef:
 	return _get_instance(SCRIPT)
 
 static func call_on_ready(callable:Callable):
 	_call_on_ready(SCRIPT, callable)
-	#var instance = get_instance()
-	#while not instance.populated:
-		#await instance.get_tree().process_frame
-	#
-	#callable.call()
 
-func _get_ready_bool():
+func _get_ready_bool() -> bool:
 	return populated
 
 static func register(key, object) -> void:
@@ -53,9 +48,9 @@ func _unregister(key, quiet:=false):
 		if not quiet:
 			printerr("EditorNodeRefs doens't have key: %s" % key)
 
-static func register_dynamic(key, method:Callable, _signal:Signal, callback=null, callback_pass_args:=false):
+static func register_dynamic(key, update_method:Callable, _signal:Signal, callback=null, callback_pass_args:=false):
 	var instance = get_instance()
-	instance._register_dynamic(key, method, _signal, callback, callback_pass_args)
+	instance._register_dynamic(key, update_method, _signal, callback, callback_pass_args)
 
 func _register_dynamic(key, method:Callable, _signal:Signal, callback=null, callback_pass_args:=false):
 	if _dynamic_data.has(key):
