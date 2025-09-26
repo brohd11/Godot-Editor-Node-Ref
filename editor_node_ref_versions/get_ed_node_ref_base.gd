@@ -183,6 +183,13 @@ func get_editor_log_filter_line_edit():
 	for n in vbox.get_children():
 		if n is LineEdit:
 			return n
+##
+func get_title_menu_bar():
+	var title_bar = get_title_bar()
+	for c in title_bar.get_children():
+		if c.get_class() == "MenuBar":
+			return c
+
 
 
 

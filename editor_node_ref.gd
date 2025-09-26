@@ -119,6 +119,8 @@ enum Nodes {
 	
 	DOCKS,
 	
+	TITLE_MENU_BAR,
+	
 }
 
 var _registry:Dictionary = {}
@@ -178,6 +180,7 @@ func _popupulate_references() -> void:
 	
 	_register(Nodes.DOCKS, _get_node.get_docks())
 	
+	_register(Nodes.TITLE_MENU_BAR, _get_node.get_title_menu_bar())
 	
 	##
 	_popuplate_dynamic_references()
