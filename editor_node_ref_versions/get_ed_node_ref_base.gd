@@ -194,4 +194,11 @@ func get_title_menu_bar():
 
 
 func get_2d_editor_popup():
-	return null
+	var main_screen = EditorInterface.get_editor_main_screen()
+	var canvas_item_editor
+	for c in main_screen.get_children():
+		if c.get_class() == "CanvasItemEditor":
+			canvas_item_editor = c
+			break
+	var popup = canvas_item_editor.get_child(canvas_item_editor.get_child_count() - 1)
+	return popup

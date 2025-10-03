@@ -121,6 +121,8 @@ enum Nodes {
 	
 	TITLE_MENU_BAR,
 	
+	EDITOR_2D_POPUP,
+	
 }
 
 var _registry:Dictionary = {}
@@ -182,6 +184,8 @@ func _popupulate_references() -> void:
 	
 	_register(Nodes.TITLE_MENU_BAR, _get_node.get_title_menu_bar())
 	
+	_register(Nodes.EDITOR_2D_POPUP, _get_node.get_2d_editor_popup())
+	
 	##
 	_popuplate_dynamic_references()
 	
@@ -190,6 +194,7 @@ func _popupulate_references() -> void:
 func _popuplate_dynamic_references():
 	var fs_popup = EditorNodeRef.get_registered(EditorNodeRef.Nodes.FILESYSTEM_POPUP)
 	_register_dynamic(Nodes.FILESYSTEM_CREATE_POPUP, _get_node.get_file_system_create_popup, fs_popup.about_to_popup)
+	_get_node._populate_filesystem_popup()
 	
 	var editor_script_changed = EditorInterface.get_script_editor().editor_script_changed
 	
