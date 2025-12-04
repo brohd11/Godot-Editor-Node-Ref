@@ -13,16 +13,16 @@ const _GET_REF_SCRIPTS = {
 }
 
 const _NODE_NAME = "EditorNodeRef"
-const SCRIPT = preload("res://addons/addon_lib/editor_node_ref/editor_node_ref.gd")
+const PE_STRIP_CAST_SCRIPT = preload("res://addons/addon_lib/editor_node_ref/editor_node_ref.gd")
 
 static func get_singleton_name():
 	return "EditorNodeRef"
 
 static func get_instance() -> EditorNodeRef:
-	return _get_instance(SCRIPT)
+	return _get_instance(PE_STRIP_CAST_SCRIPT)
 
 static func call_on_ready(callable:Callable):
-	_call_on_ready(SCRIPT, callable)
+	_call_on_ready(PE_STRIP_CAST_SCRIPT, callable)
 
 func _get_ready_bool() -> bool:
 	return populated
