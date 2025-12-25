@@ -85,6 +85,13 @@ func get_file_system_create_popup():
 	if fs_popup.get_child_count() > 0:
 		var popup = fs_popup.get_child(0)
 		return popup
+
+func get_file_system_folder_color_popup():
+	var fs_popup = _get_file_system_popup()
+	if fs_popup.get_child_count() > 1:
+		var popup = fs_popup.get_child(1)
+		return popup
+
 #private func
 func _populate_filesystem_popup():
 	var fs_popup = _get_file_system_popup()
@@ -96,6 +103,33 @@ func get_file_system_tree():
 	var nodes = EditorInterface.get_file_system_dock().get_child(3).find_children("*", "Tree", true, false)
 	return nodes[0] # this has a check in the original if popup menu has moved
 
+##
+func get_file_system_bottom_popup():
+	var fs_popup = EditorInterface.get_file_system_dock().get_child(1)
+	node_types_dict["FileSystemBottomPopup"] = fs_popup
+	return fs_popup
+# private
+func _get_file_system_bottom_popup():
+	return node_types_dict.get("FileSystemBottomPopup")
+##
+func get_file_system_bottom_folder_color_popup():
+	var fs_popup = _get_file_system_bottom_popup()
+	if fs_popup.get_child_count() > 1:
+		var popup = fs_popup.get_child(1)
+		return popup
+
+func get_file_system_bottom_create_popup():
+	var fs_popup = _get_file_system_bottom_popup()
+	if fs_popup.get_child_count() > 0:
+		var popup = fs_popup.get_child(0)
+		return popup
+#private func
+func _populate_filesystem_bottom_popup():
+	var fs_popup = _get_file_system_bottom_popup()
+	var tree = get_file_system_tree() as Tree
+	tree.item_mouse_selected.emit(Vector2.ZERO, 2)
+	fs_popup.hide()
+##
 
 
 

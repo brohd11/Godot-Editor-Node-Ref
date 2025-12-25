@@ -80,6 +80,9 @@ func _unregister_dynamic(key):
 	else:
 		printerr("EditorNodeRef does not have dynamic key: %s" % key)
 
+static func get_node_ref(key:Nodes) -> Variant:
+	var instance = get_instance()
+	return instance._get_registered(key)
 
 static func get_registered(key) -> Variant:
 	var instance = get_instance()
@@ -95,8 +98,13 @@ func _get_registered(key):
 
 enum Nodes {
 	FILESYSTEM_POPUP,
+	FILESYSTEM_FOLDER_COLOR_POPUP,
 	FILESYSTEM_CREATE_POPUP,
 	FILESYSTEM_TREE,
+	
+	FILESYSTEM_BOTTOM_POPUP,
+	FILESYSTEM_BOTTOM_FOLDER_COLOR_POPUP,
+	FILESYSTEM_BOTTOM_CREATE_POPUP,
 	
 	SCRIPT_EDITOR_POPUP,
 	SCRIPT_EDITOR_CODE_POPUP,
@@ -130,7 +138,7 @@ var _dynamic_data:Dictionary = {}
 
 signal script_editor_updated
 
-var _get_node #:_NodeRefScripts.NodeRefBase
+var _get_node:_NodeRefScripts.NodeRefBase
 
 var populated := false
 
@@ -166,6 +174,8 @@ func _popupulate_references() -> void:
 	_register(Nodes.FILESYSTEM_POPUP, _get_node.get_file_system_popup())
 	_register(Nodes.FILESYSTEM_TREE, _get_node.get_file_system_tree())
 	
+	_register(Nodes.FILESYSTEM_BOTTOM_POPUP, _get_node.get_file_system_bottom_popup())
+	
 	_register(Nodes.SCENE_TABS, _get_node.get_scene_tabs())
 	_register(Nodes.SCENE_TABS_POPUP, _get_node.get_scene_tabs_popup())
 	_register(Nodes.SCENE_TREE_POPUP, _get_node.get_scene_tree_popup())
@@ -192,9 +202,15 @@ func _popupulate_references() -> void:
 	populated = true
 
 func _popuplate_dynamic_references():
-	var fs_popup = EditorNodeRef.get_registered(EditorNodeRef.Nodes.FILESYSTEM_POPUP)
+	var fs_popup = EditorNodeRef.get_node_ref(EditorNodeRef.Nodes.FILESYSTEM_POPUP)
 	_register_dynamic(Nodes.FILESYSTEM_CREATE_POPUP, _get_node.get_file_system_create_popup, fs_popup.about_to_popup)
+	_register_dynamic(Nodes.FILESYSTEM_FOLDER_COLOR_POPUP, _get_node.get_file_system_folder_color_popup, fs_popup.about_to_popup)
+	var fs_bottom_popup = EditorNodeRef.get_node_ref(Nodes.FILESYSTEM_BOTTOM_POPUP)
+	_register_dynamic(Nodes.FILESYSTEM_BOTTOM_CREATE_POPUP, _get_node.get_file_system_bottom_create_popup, fs_bottom_popup.about_to_popup)
+	_register_dynamic(Nodes.FILESYSTEM_BOTTOM_FOLDER_COLOR_POPUP, _get_node.get_file_system_bottom_folder_color_popup, fs_bottom_popup.about_to_popup)
 	_get_node._populate_filesystem_popup()
+	#_get_node._populate_filesystem_bottom_popup()
+	
 	
 	var editor_script_changed = EditorInterface.get_script_editor().editor_script_changed
 	
