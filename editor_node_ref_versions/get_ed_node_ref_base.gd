@@ -218,6 +218,15 @@ func get_editor_log_filter_line_edit():
 		if n is LineEdit:
 			return n
 ##
+func get_editor_log_button_container():
+	return get_editor_log().get_child(2)
+
+func get_editor_log_rich_text_label():
+	var editor_log = get_editor_log()
+	var text_box = editor_log.get_child(1).get_child(0)
+	return text_box
+
+##
 func get_title_menu_bar():
 	var title_bar = get_title_bar()
 	for c in title_bar.get_children():

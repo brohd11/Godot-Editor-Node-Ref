@@ -1,5 +1,6 @@
 class_name EditorNodeRef #! singleton-module
-extends Singleton.Base
+extends SingletonBase
+const SingletonBase = Singleton.Base
 
 #static func _static_init() -> void:
 	#get_instance()
@@ -8,7 +9,8 @@ extends Singleton.Base
 const _GET_REF_SCRIPTS = {
 	4: {
 		4: _NodeRefScripts.NodeRef_44,
-		5: _NodeRefScripts.NodeRef_45
+		5: _NodeRefScripts.NodeRef_45,
+		6: _NodeRefScripts.NodeRef_46,
 	}
 }
 
@@ -131,6 +133,9 @@ enum Nodes {
 	
 	EDITOR_2D_POPUP,
 	
+	EDITOR_LOG_BUTTON_CONTAINER,
+	EDITOR_LOG_RICH_TEXT_LABEL,
+	
 }
 
 var _registry:Dictionary = {}
@@ -189,6 +194,8 @@ func _popupulate_references() -> void:
 	
 	_register(Nodes.EDITOR_LOG, _get_node.get_editor_log())
 	_register(Nodes.EDITOR_LOG_FILTER, _get_node.get_editor_log_filter_line_edit())
+	_register(Nodes.EDITOR_LOG_BUTTON_CONTAINER, _get_node.get_editor_log_button_container())
+	_register(Nodes.EDITOR_LOG_RICH_TEXT_LABEL, _get_node.get_editor_log_rich_text_label())
 	
 	_register(Nodes.DOCKS, _get_node.get_docks())
 	
@@ -235,3 +242,37 @@ class _NodeRefScripts:
 	const NodeRefBase = preload("res://addons/addon_lib/editor_node_ref/editor_node_ref_versions/get_ed_node_ref_base.gd")
 	const NodeRef_44 = preload("res://addons/addon_lib/editor_node_ref/editor_node_ref_versions/get_ed_node_ref_4_4.gd")
 	const NodeRef_45 = preload("res://addons/addon_lib/editor_node_ref/editor_node_ref_versions/get_ed_node_ref_4_5.gd")
+	const NodeRef_46 = preload("res://addons/addon_lib/editor_node_ref/editor_node_ref_versions/get_ed_node_ref_4_6.gd")
+
+
+static func _test_get_node():
+	var ins = get_instance()
+	print(ins._get_node.get_file_system_popup())
+	print(ins._get_node.get_file_system_tree())
+	
+	print(ins._get_node.get_file_system_bottom_popup())
+	
+	print(ins._get_node.get_scene_tabs())
+	print(ins._get_node.get_scene_tabs_popup())
+	print(ins._get_node.get_scene_tree_popup())
+	print(ins._get_node.get_scene_tree_dock())
+	
+	print(ins._get_node.get_title_bar())
+	print(ins._get_node.get_title_buttons())
+	
+	print(ins._get_node.get_bottom_panel())
+	print(ins._get_node.get_bottom_panel_buttons())
+	
+	print(ins._get_node.get_editor_log())
+	print(ins._get_node.get_editor_log_filter_line_edit())
+	print(ins._get_node.get_editor_log_button_container())
+	print(ins._get_node.get_editor_log_rich_text_label())
+	
+	print(ins._get_node.get_docks())
+	
+	print(ins._get_node.get_title_menu_bar())
+	
+	print(ins._get_node.get_2d_editor_popup())
+	
+	for i in Nodes.values():
+		print(ins.get_node_ref(i))
