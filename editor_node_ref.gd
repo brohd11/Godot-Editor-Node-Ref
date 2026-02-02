@@ -2,9 +2,6 @@ class_name EditorNodeRef #! singleton-module
 extends SingletonBase
 const SingletonBase = Singleton.Base
 
-#static func _static_init() -> void:
-	#get_instance()
-
 
 const _GET_REF_SCRIPTS = {
 	4: {
@@ -94,7 +91,10 @@ func _get_registered(key):
 	if _registry.has(key):
 		return _registry.get(key)
 	else:
-		print("Could not find reference for key: %s" % key)
+		var key_str = key
+		if key is int and key < Nodes.size():
+			key_str = Nodes.keys()[key]
+		print("Could not find reference for key: %s" % key_str)
 		return null
 
 
