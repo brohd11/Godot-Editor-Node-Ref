@@ -79,22 +79,23 @@ func _unregister_dynamic(key):
 	else:
 		printerr("EditorNodeRef does not have dynamic key: %s" % key)
 
-static func get_node_ref(key:Nodes) -> Variant:
+static func get_node_ref(key:Nodes, print_err:=true) -> Variant:
 	var instance = get_instance()
-	return instance._get_registered(key)
+	return instance._get_registered(key, print_err)
 
-static func get_registered(key) -> Variant:
+static func get_registered(key, print_err:=true) -> Variant:
 	var instance = get_instance()
-	return instance._get_registered(key)
+	return instance._get_registered(key, print_err)
 
-func _get_registered(key):
+func _get_registered(key, print_err:=true):
 	if _registry.has(key):
 		return _registry.get(key)
 	else:
 		var key_str = key
 		if key is int and key < Nodes.size():
 			key_str = Nodes.keys()[key]
-		print("Could not find reference for key: %s" % key_str)
+		if print_err:
+			print("Could not find reference for key: %s" % key_str)
 		return null
 
 
