@@ -137,6 +137,8 @@ enum Nodes {
 	EDITOR_LOG_BUTTON_CONTAINER,
 	EDITOR_LOG_RICH_TEXT_LABEL,
 	
+	CLOSED_DOCKS_NODE,
+	
 }
 
 var _registry:Dictionary = {}
@@ -203,6 +205,10 @@ func _popupulate_references() -> void:
 	_register(Nodes.TITLE_MENU_BAR, _get_node.get_title_menu_bar())
 	
 	_register(Nodes.EDITOR_2D_POPUP, _get_node.get_2d_editor_popup())
+	
+	var version = Engine.get_version_info()
+	if version.minor >= 6:
+		_register(Nodes.CLOSED_DOCKS_NODE, _get_node.get_closed_docks_node())
 	
 	##
 	_popuplate_dynamic_references()

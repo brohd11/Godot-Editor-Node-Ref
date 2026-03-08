@@ -47,3 +47,7 @@ func get_editor_log_rich_text_label():
 func get_bottom_panel_buttons():
 	var bp = get_bottom_panel()
 	return bp.get_child(0).get_child(1, true)
+
+func get_closed_docks_node():
+	return EditorInterface.get_base_control().get_child(1)
+	
