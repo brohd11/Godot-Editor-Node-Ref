@@ -1,7 +1,7 @@
 extends "res://addons/addon_lib/editor_node_ref/editor_node_ref_versions/get_ed_node_ref_base.gd"
 
 func get_scene_tree_popup():
-	var scene_tree_dock = node_types_dict.get("SceneTreeDock")[0]
+	var scene_tree_dock = get_node_from_dict("SceneTreeDock")
 	for c:Node in scene_tree_dock.get_children():
 		if not c is PopupMenu:
 			continue
@@ -14,17 +14,10 @@ func get_file_system_tree():
 	return nodes[0] # this has a check in the original if popup menu has moved
 
 func get_bottom_panel() -> Control:
-	return node_types_dict.get("EditorBottomPanel")[0]
-
-func _bottom_panel_get_panel(_class_name):
-	var bottom_panel = get_bottom_panel()
-	for p in bottom_panel.get_children():
-		if p.get_class() == _class_name:
-			return p
-	push_error("Could not find %s" % _class_name)
+	return get_node_from_dict("EditorBottomPanel")
 
 func get_editor_log():
-	return _bottom_panel_get_panel("EditorLog")
+	return get_node_from_dict("EditorLog")
 ##
 func get_editor_log_filter_line_edit():
 	var editor_log = get_editor_log()
@@ -43,11 +36,12 @@ func get_editor_log_rich_text_label():
 	var text_box = editor_log.get_child(1).get_child(0).get_child(0)
 	return text_box
 
+
+func get_closed_docks_node():
+	return EditorInterface.get_base_control().get_child(1)
+
+
 ## No longer a valid thing, this is a tab bar now. Returns the editor version area now.
 func get_bottom_panel_buttons():
 	var bp = get_bottom_panel()
 	return bp.get_child(0).get_child(1, true)
-
-func get_closed_docks_node():
-	return EditorInterface.get_base_control().get_child(1)
-	

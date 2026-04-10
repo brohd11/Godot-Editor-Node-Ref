@@ -3,8 +3,8 @@
 
 var node_types_dict = {}
 ##
-func get_all_nodes_of_types(types:Array) -> Dictionary:
-	var root = Engine.get_main_loop().root
+func get_all_nodes_of_types(types:Array) -> Dictionary: # possibly pass 2 arrays, single instance will be removed when found
+	var root = Engine.get_main_loop().root # vs something like TabContainer
 	var dict = {}
 	for type in types:
 		dict[type] = []
@@ -20,7 +20,11 @@ func _get_all_nodes_of_types_recursive(node:Node, type_array:Array, node_dict:Di
 		_get_all_nodes_of_types_recursive(n, type_array, node_dict)
 	return node_dict
 
-
+func get_node_from_dict(node_class:String, idx:=0):
+	var ref = node_types_dict.get(node_class)
+	if ref is Array and idx > -1:
+		return ref[idx]
+	return ref
 
 
 
@@ -67,8 +71,25 @@ func get_script_editor_syntax_popup(): # Dynamic
 	var syntax_popup = menu_popup.get_child(menu_popup.get_child_count() - 1)
 	return syntax_popup
 
+##
+func get_script_editor_h_split():
+	var script_editor = EditorInterface.get_script_editor()
+	var h_split = script_editor.get_child(0).get_child(1)
+	return h_split
 
+##
+func get_script_editor_sidebar_v_split():
+	var script_editor = EditorInterface.get_script_editor()
+	var h_split = script_editor.get_child(0).get_child(1)
+	var v_split = h_split.get_child(0)
+	return v_split
 
+##
+func get_script_editor_tab_container():
+	var script_editor = EditorInterface.get_script_editor()
+	var h_split = script_editor.get_child(0).get_child(1)
+	var tab = h_split.get_child(1).get_child(0)
+	return tab
 
 
 ##
@@ -78,7 +99,7 @@ func get_file_system_popup():
 	return fs_popup
 # private
 func _get_file_system_popup():
-	return node_types_dict.get("FileSystemPopup")
+	return get_node_from_dict("FileSystemPopup")
 ##
 func get_file_system_create_popup():
 	var fs_popup = _get_file_system_popup()
@@ -110,7 +131,7 @@ func get_file_system_bottom_popup():
 	return fs_popup
 # private
 func _get_file_system_bottom_popup():
-	return node_types_dict.get("FileSystemBottomPopup")
+	return get_node_from_dict("FileSystemBottomPopup")
 ##
 func get_file_system_bottom_folder_color_popup():
 	var fs_popup = _get_file_system_bottom_popup()
@@ -140,13 +161,13 @@ func get_scene_tabs_popup():
 	return popup
 ##
 func get_scene_tree_popup():
-	return node_types_dict.get("SceneTreeDock")[0].get_child(15)
+	return get_node_from_dict("SceneTreeDock").get_child(15)
 ##
 func get_scene_tabs():
-	return node_types_dict.get("EditorSceneTabs")[0]
+	return get_node_from_dict("EditorSceneTabs")
 ##
 func get_scene_tree_dock():
-	return node_types_dict.get("SceneTreeDock")[0]
+	return get_node_from_dict("SceneTreeDock")
 ##
 
 
@@ -162,6 +183,11 @@ func get_docks():
 	return docks
 ##
 
+func get_editor_dock(class_or_name:String):
+	var editor_docks = node_types_dict.get(&"EditorDock", [])
+	for node in editor_docks:
+		if node.get_class() == class_or_name or node.name == class_or_name:
+			return node
 
 
 
@@ -182,7 +208,7 @@ func get_title_buttons():
 
 ##
 func get_bottom_panel() -> Control:
-	return node_types_dict.get("EditorBottomPanel")[0].get_child(0)
+	return get_node_from_dict("EditorBottomPanel").get_child(0)
 ##
 func get_bottom_panel_buttons():
 	var bp = get_bottom_panel()
@@ -209,7 +235,7 @@ func _bottom_panel_get_panel(_class_name):
 
 ##
 func get_editor_log():
-	return _bottom_panel_get_panel("EditorLog")
+	return get_node_from_dict("EditorLog")
 ##
 func get_editor_log_filter_line_edit():
 	var editor_log = get_editor_log()

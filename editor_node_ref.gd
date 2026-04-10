@@ -137,9 +137,17 @@ enum Nodes {
 	EDITOR_LOG_BUTTON_CONTAINER,
 	EDITOR_LOG_RICH_TEXT_LABEL,
 	
+	EDITOR_DOCKS,
 	CLOSED_DOCKS_NODE,
+	SHADER_EDITOR,
 	
+	SCRIPT_EDITOR_SIDEBAR_V_SPLIT,
+	SCRIPT_EDITOR_H_SPLIT,
+	SCRIPT_EDITOR_TAB_CONTAINER,
 }
+
+const _TYPES = [&"TabContainer", &"SceneTreeDock", &"EditorSceneTabs", &"EditorBottomPanel", &"EditorLog", &"EditorDock"]
+
 
 var _registry:Dictionary = {}
 var _dynamic_data:Dictionary = {}
@@ -175,8 +183,7 @@ func _popupulate_references() -> void:
 		await get_tree().process_frame
 	#await get_tree().process_frame
 	
-	var types = ["TabContainer", "SceneTreeDock", "EditorSceneTabs", "EditorBottomPanel"]
-	_get_node.get_all_nodes_of_types(types)
+	_get_node.get_all_nodes_of_types(_TYPES)
 	
 	## Register
 	_register(Nodes.FILESYSTEM_POPUP, _get_node.get_file_system_popup())
@@ -200,6 +207,11 @@ func _popupulate_references() -> void:
 	_register(Nodes.EDITOR_LOG_BUTTON_CONTAINER, _get_node.get_editor_log_button_container())
 	_register(Nodes.EDITOR_LOG_RICH_TEXT_LABEL, _get_node.get_editor_log_rich_text_label())
 	
+	_register(Nodes.SCRIPT_EDITOR_H_SPLIT, _get_node.get_script_editor_h_split())
+	_register(Nodes.SCRIPT_EDITOR_SIDEBAR_V_SPLIT, _get_node.get_script_editor_sidebar_v_split())
+	_register(Nodes.SCRIPT_EDITOR_TAB_CONTAINER, _get_node.get_script_editor_tab_container())
+	
+	
 	_register(Nodes.DOCKS, _get_node.get_docks())
 	
 	_register(Nodes.TITLE_MENU_BAR, _get_node.get_title_menu_bar())
@@ -209,6 +221,8 @@ func _popupulate_references() -> void:
 	var version = Engine.get_version_info()
 	if version.minor >= 6:
 		_register(Nodes.CLOSED_DOCKS_NODE, _get_node.get_closed_docks_node())
+		_register(Nodes.EDITOR_DOCKS, _get_node.get_node_from_dict(&"EditorDock"))
+		_register(Nodes.SHADER_EDITOR, _get_node.get_editor_dock(&"Shader Editor"))
 	
 	##
 	_popuplate_dynamic_references()
