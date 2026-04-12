@@ -5,7 +5,7 @@ func get_scene_tree_popup():
 	for c:Node in scene_tree_dock.get_children():
 		if not c is PopupMenu:
 			continue
-		var sig_callable = ALibRuntime.Utils.UNode.get_signal_callable(c, "id_pressed", "SceneTreeDock::_tool_selected")
+		var sig_callable = UNode.get_signal_callable(c, "id_pressed", "SceneTreeDock::_tool_selected")
 		if sig_callable != null:
 			return c
 

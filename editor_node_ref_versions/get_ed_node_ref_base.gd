@@ -1,6 +1,8 @@
 
 # This is the 4.4 functionality, change what must be in other versions
 
+const UNode = preload("res://addons/addon_lib/brohd/alib_runtime/utils/u_node.gd")
+
 var node_types_dict = {}
 ##
 func get_all_nodes_of_types(types:Array) -> Dictionary: # possibly pass 2 arrays, single instance will be removed when found

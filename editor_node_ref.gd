@@ -79,6 +79,11 @@ func _unregister_dynamic(key):
 	else:
 		printerr("EditorNodeRef does not have dynamic key: %s" % key)
 
+static func refresh_dynamic_refs():
+	var ins = get_instance()
+	for data in ins._dynamic_data.values():
+		data["handler"].call()
+
 static func get_node_ref(key:Nodes, print_err:=true) -> Variant:
 	var instance = get_instance()
 	return instance._get_registered(key, print_err)
