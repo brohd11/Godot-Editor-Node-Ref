@@ -1,7 +1,7 @@
 
 # This is the 4.4 functionality, change what must be in other versions
 
-const UNode = preload("res://addons/addon_lib/brohd/alib_runtime/utils/u_node.gd")
+const UNode = preload("uid://dsywt12xnn7oh") #! resolve ALibRuntime.Utils.UNode
 
 var node_types_dict = {}
 ##
