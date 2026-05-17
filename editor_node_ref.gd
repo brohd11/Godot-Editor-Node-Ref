@@ -1,6 +1,6 @@
 class_name EditorNodeRef #! singleton-module
 extends SingletonBase
-const SingletonBase = Singleton.Base
+const SingletonBase = Singletons.Base
 
 
 const _GET_REF_SCRIPTS = {
