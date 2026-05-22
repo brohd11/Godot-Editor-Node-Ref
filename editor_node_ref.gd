@@ -8,6 +8,7 @@ const _GET_REF_SCRIPTS = {
 		4: _NodeRefScripts.NodeRef_44,
 		5: _NodeRefScripts.NodeRef_45,
 		6: _NodeRefScripts.NodeRef_46,
+		7: _NodeRefScripts.NodeRef_47,
 	}
 }
 
@@ -269,6 +270,7 @@ class _NodeRefScripts:
 	const NodeRef_44 = preload("res://addons/addon_lib/editor_node_ref/editor_node_ref_versions/get_ed_node_ref_4_4.gd")
 	const NodeRef_45 = preload("res://addons/addon_lib/editor_node_ref/editor_node_ref_versions/get_ed_node_ref_4_5.gd")
 	const NodeRef_46 = preload("res://addons/addon_lib/editor_node_ref/editor_node_ref_versions/get_ed_node_ref_4_6.gd")
+	const NodeRef_47 = preload("res://addons/addon_lib/editor_node_ref/editor_node_ref_versions/get_ed_node_ref_4_7.gd")
 
 
 static func _test_get_node():
@@ -302,3 +304,8 @@ static func _test_get_node():
 	
 	for i in Nodes.values():
 		print(ins.get_node_ref(i))
+
+
+static func test_temp():
+	var ins = get_instance()
+	print(ins.get_node_ref(Nodes.SCRIPT_EDITOR_SYNTAX_POPUP))
