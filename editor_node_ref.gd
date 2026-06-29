@@ -152,7 +152,7 @@ enum Nodes {
 	SCRIPT_EDITOR_TAB_CONTAINER,
 }
 
-const _TYPES = [&"TabContainer", &"SceneTreeDock", &"EditorSceneTabs", &"EditorBottomPanel", &"EditorLog", &"EditorDock"]
+const _TYPES = [&"TabContainer", &"SideDockTabContainer", &"SceneTreeDock", &"EditorSceneTabs", &"EditorBottomPanel", &"EditorLog", &"EditorDock"]
 
 
 var _registry:Dictionary = {}
