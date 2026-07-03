@@ -39,6 +39,14 @@ func get_script_editor_code_popup(): # Dynamic
 	for c in current.get_children():
 		if c is PopupMenu:
 			return c
+	
+	var code_edit = EditorInterface.get_script_editor().get_current_editor().get_base_editor()
+	var script_tab_dummy = code_edit.get_parent().get_parent().get_parent()
+	if script_tab_dummy.get_script() != null: # maybe give it a path
+		for c in script_tab_dummy.get_children():
+			if c is PopupMenu:
+				return c
+	
 	return current.get_child(1)
 ##
 func get_script_editor_popup(): # Dynamic
