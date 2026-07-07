@@ -173,8 +173,14 @@ func _ready() -> void:
 	var major_dict = _GET_REF_SCRIPTS.get(major)
 	var minor_script = major_dict.get(minor)
 	if minor_script == null:
-		print("Error getting version %s.%s EditorNodeRefs script, reverting to 4.4" % [major, minor])
-		script = major_dict.get(4)
+		var attempted_minor = minor
+		if minor < 4:
+			minor = 4
+		while not is_instance_valid(minor_script) and minor > 4: # 4.4 is earliest support
+			minor -= 1
+			minor_script = major_dict.get(minor)
+		print("Error getting version %s.%s EditorNodeRefs script, reverting to %s.%s" % [major, attempted_minor, major, minor])
+		script = major_dict.get(minor)
 	else:
 		script = major_dict.get(minor)
 	
